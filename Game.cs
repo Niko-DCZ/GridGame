@@ -127,14 +127,69 @@ namespace GridGame
         }
         void SetCharactersIntoList()
         {
-            Character abraham = new Character(20f, 6f, 2, 3, Image.FromFile("abraham.jpg"), false, false, null, "Abraham");
-            RangedK_DAWG malcom = new RangedK_DAWG(4f, 50, 3, 1, Image.FromFile("Malcom.jpg"), false, false, 2f, 2, null, "Malcom");
-            Ogre kendrick = new Ogre(10f, 2f, 2, 3, Image.FromFile("kl.jpg"), false, false, 2f, null, "Kendrick");
-            Goblin hariot = new Goblin(4f, 2f, 3, 3, Image.FromFile("hariot.jpg"), false, false, 2, null, "hariot");
-            Gremlin mlk = new Gremlin(8f, 3f, 3, 4, Image.FromFile("mlk.jpg"), false, false, 2, null, "mlk");
-            Character jesse = new Character(20f, 6f, 3, 2, Image.FromFile("jesse.jpg"), false, false, null, "Jesse");
+            characters.Clear();
 
-            lstCharacters.Items.AddRange(new Character[] { abraham, malcom, kendrick, hariot, mlk, jesse });
+            string connectionString = @"Server=(localdb)\MSSQLLocalDB;   
+    Database=GridGameDB;
+    Trusted_Connection=True;";
+
+            /* what Server I am connecting to and the name
+             * Name of Database
+             * Verifying the connection
+             */
+            SqlConnection con = new SqlConnection(connectionString); // connect with the server
+
+            con.Open(); // allow connection to database
+
+            string query = "SELECT * FROM Characters"; //collecting all the characters to input them here
+
+            SqlCommand command = new SqlCommand(query, con);
+
+            SqlDataReader reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                Character character = null;
+                string CT = reader["CharacterType"].ToString();
+                float health = Convert.ToSingle(reader["Health"]);
+                float damage = Convert.ToSingle(reader["Damage"]);
+                float tR = Convert.ToSingle(reader["TravelRange"]);
+                int bV = Convert.ToInt32(reader["BlockVal"]);
+                string iP = reader["ImagePath"].ToString();
+                Image img = Image.FromFile(iP);
+                string name = reader["Name"].ToString();
+
+                if (CT == "Character")
+                {
+                    character = new Character(health, damage, (int)tR, bV, img, false, false, null, name);
+
+                }
+                else if (CT == "Ogre")
+                {
+                    float specialVal = Convert.ToSingle(reader["SpecialVal"]);
+                    character = new Ogre(health, damage, (int)tR, bV, img, false, false, specialVal, null, name);
+                }
+                else if (CT == "Goblin")
+                {
+                    float specialVal = Convert.ToSingle(reader["SpecialVal"]);
+                    character = new Goblin(health, damage, (int)tR, bV, img, false, false, specialVal, null, name);
+                }
+                else if (CT == "Gremlin")
+                {
+                    float specialVal = Convert.ToSingle(reader["SpecialVal"]);
+                    character = new Gremlin(health, damage, (int)tR, bV, img, false, false, specialVal, null, name);
+                }
+                else if (CT == "RangedK_DAWG")
+                {
+                    float splashVal = Convert.ToSingle(reader["SplashVal"]);
+                    int splashRange = Convert.ToInt32(reader["SplashRange"]);
+                    character = new RangedK_DAWG(health, damage, (int)tR, bV, img, false, false, splashVal, splashRange, null, name);
+                }
+                lstCharacters.Items.Add(character);
+            }
+
+            reader.Close();
+            con.Close();
         }
         void SetupCharacters()
         {
