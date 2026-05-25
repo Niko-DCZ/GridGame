@@ -1,4 +1,4 @@
-#GridGame
+**GridGame**
 
 **What is it**
 This a board game developed in C# WinForms. 
