@@ -36,10 +36,15 @@ If all of either player's characters die then the game announces the winner.
 **Future plans**
 
 After that I will probably implement data saves so that I can continue my game after i have did a move for example. 
+
 Mainly I want it to change from an offline multi-player to a  online multi-player.
+
 Making leaders become a significant figure to the game,if either of them dies but the defendant still has characters on the board, the attacker wins as it has killed the leader, think of it like chess.
+
 Harriot’s future ability is planned to allow extended movement across the board while dealing reduced area damage after moving.”
+
 MLK's ability will make him explode upon death, dealing the damage that he received before he died. 
+
 Visual improvements need to be developed to make this game more satisfying but I have focus more on the functionality side.
 
 **What does it have?**
