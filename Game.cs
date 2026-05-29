@@ -67,6 +67,7 @@ namespace GridGame
             DebugBox.Items.Add(gm.currentPlayer.boardPositions.Count + " playerCountForCurrent");
             DebugBox.Items.Add(gm.notCurrentPlayer.boardPositions.Count + " playerCountForNotCurrent");
 
+
         }
         int[] GetBoardPositionIndex(BoardPosition bp)
         {
@@ -130,8 +131,8 @@ namespace GridGame
             characters.Clear();
 
             string connectionString = @"Server=(localdb)\MSSQLLocalDB;   
-    Database=GridGameDB;
-    Trusted_Connection=True;";
+            Database=GridGameDB;
+           Trusted_Connection=True;";
 
             /* what Server I am connecting to and the name
              * Name of Database
@@ -143,10 +144,10 @@ namespace GridGame
 
             string query = "SELECT * FROM Characters"; //collecting all the characters to input them here
 
-            SqlCommand command = new SqlCommand(query, con);
+            SqlCommand command = new SqlCommand(query, con); // uses the query and the connection to the database to pull data
 
-            SqlDataReader reader = command.ExecuteReader();
-
+            SqlDataReader reader = command.ExecuteReader();  // this is where the actual pulling of data starts
+            //all code below uses reader as we are collecting the data and converting it
             while (reader.Read())
             {
                 Character character = null;
@@ -158,32 +159,31 @@ namespace GridGame
                 string iP = reader["ImagePath"].ToString();
                 Image img = Image.FromFile(iP);
                 string name = reader["Name"].ToString();
+                float specialVal = Convert.ToSingle(reader["SpecialVal"]);
+                float splashVal = Convert.ToSingle(reader["SplashVal"]);
+                int splashRange = Convert.ToInt32(reader["SplashRange"]);
+                bool Leader = Convert.ToBoolean(reader["Leader"]);
 
                 if (CT == "Character")
                 {
-                    character = new Character(health, damage, (int)tR, bV, img, false, false, null, name);
-
+                    character = new Character(health, damage, (int)tR, bV, img, false, false, null, name, Leader, splashVal, splashRange);
                 }
                 else if (CT == "Ogre")
                 {
-                    float specialVal = Convert.ToSingle(reader["SpecialVal"]);
-                    character = new Ogre(health, damage, (int)tR, bV, img, false, false, specialVal, null, name);
+                    character = new Ogre(health, damage, (int)tR, bV, img, false, false, null, name, Leader, splashVal, splashRange, specialVal);
                 }
                 else if (CT == "Goblin")
                 {
-                    float specialVal = Convert.ToSingle(reader["SpecialVal"]);
-                    character = new Goblin(health, damage, (int)tR, bV, img, false, false, specialVal, null, name);
+                    character = new Goblin(health, damage, (int)tR, bV, img, false, false, specialVal, null, name, Leader, splashVal, splashRange);
                 }
                 else if (CT == "Gremlin")
                 {
-                    float specialVal = Convert.ToSingle(reader["SpecialVal"]);
-                    character = new Gremlin(health, damage, (int)tR, bV, img, false, false, specialVal, null, name);
+                    character = new Gremlin(health, damage, (int)tR, bV, img, false, false, null, name, Leader, splashVal, splashRange, specialVal);
                 }
                 else if (CT == "RangedK_DAWG")
                 {
-                    float splashVal = Convert.ToSingle(reader["SplashVal"]);
-                    int splashRange = Convert.ToInt32(reader["SplashRange"]);
-                    character = new RangedK_DAWG(health, damage, (int)tR, bV, img, false, false, splashVal, splashRange, null, name);
+
+                    character = new RangedK_DAWG(health, damage, (int)tR, bV, img, false, false, splashVal, splashRange, null, name, Leader);
                 }
                 lstCharacters.Items.Add(character);
             }
@@ -283,7 +283,6 @@ namespace GridGame
         {
             Debug.WriteLine("Number of valid spaces = " + hoverListForSplash.Count);
 
-
             foreach (BoardPosition CharacterPosition in hoverListForSplash)
             {
                 if (CharacterPosition.character == null)
@@ -305,9 +304,50 @@ namespace GridGame
                 }
 
                 Debug.WriteLine("Character attacked " + CharacterPosition.character.name);
-                hpDropping(previous.character, CharacterPosition.character);
+                if (state == "Attack")
+                {
+                    hpDropping(previous.character, CharacterPosition.character);
+                }
 
             }
+        }
+        void splashDamageForMove(int difference)
+        {
+            Debug.WriteLine("Number of valid spaces = " + hoverListForSplash.Count);
+
+            foreach (BoardPosition CharacterPosition in hoverListForSplash)
+            {
+                if (CharacterPosition.character == null)
+                {
+                    Debug.WriteLine("Character not present");
+                    continue;
+                }
+                if (CharacterPosition.character.player == gm.currentPlayer)
+                {
+                    Debug.WriteLine("Character belongs to current player " + CharacterPosition.character.name);
+                    continue;
+                }
+                if (previous.character is Goblin)
+                {
+                    Debug.WriteLine(CharacterPosition.character.health+ CharacterPosition.character.name);
+                    HpReducer(CharacterPosition.character, previous.character, difference);
+                    Debug.WriteLine("Character attacked " + CharacterPosition.character.name);
+                    Debug.WriteLine(CharacterPosition.character.health+ CharacterPosition.character.name);
+
+                }
+            }
+        }
+        void HpReducer(Character receiver, Character attacker, int diff)
+        {
+            float damage = 0;
+            damage = attacker.damage / diff;        
+            float damageDueToReceive = damage - receiver.block;
+            if (damageDueToReceive < 0)
+            {
+                damageDueToReceive = 0;
+            }
+            receiver.health = receiver.health - damageDueToReceive;
+            Debug.WriteLine(damageDueToReceive);
         }
         void Hover(object sender, EventArgs e)
         {
@@ -318,46 +358,43 @@ namespace GridGame
             {
                 return;
             }
-
-            if (chosen.character is not RangedK_DAWG)
-            {
-                return;
+            if (chosen.character.specialMoveUsed != true) {
+                return; 
             }
-
-            if (state != "Attack")
+            if (chosen.character  is  RangedK_DAWG || chosen.character is Goblin)
             {
-                return;
-            }
-
-            if (state == "Attack" && chosen.character.specialMoveUsed == true)
-            {// make another list and add those positions to then list then use the attack function to give the damage to the existing locations
-                hoverEndList.Clear();
-                int[] pos = GetBoardPositionIndex(bp);
-                int xPos = pos[0];
-                int yPos = pos[1];
-                if (bp.validPosition == true)
-                {
-                    //TOP ROW
-                    if (xPos - 1 > 0 && yPos - 1 > 0) { hoverEndList.Add(board[xPos - 1, yPos - 1]); }
-                    if (xPos - 1 > 0) { hoverEndList.Add(board[xPos - 1, yPos]); }
-                    if (xPos - 1 > 0 && yPos + 1 < 10) { hoverEndList.Add(board[xPos - 1, yPos + 1]); }
-                    //MIDDLE ROW           
-                    if (xPos > 0 && yPos - 1 > 0) { hoverEndList.Add(board[xPos, yPos - 1]); }
-                    if (xPos > 0) { hoverEndList.Add(board[xPos, yPos]); }
-                    if (xPos > 0 && yPos + 1 < 10) { hoverEndList.Add(board[xPos, yPos + 1]); }
-                    //BOTTOM ROW
-                    if (xPos + 1 > 0 && yPos - 1 > 0) { hoverEndList.Add(board[xPos + 1, yPos - 1]); }
-                    if (xPos + 1 > 0) { hoverEndList.Add(board[xPos + 1, yPos]); }
-                    if (xPos + 1 > 0 && yPos + 1 < 10) { hoverEndList.Add(board[xPos + 1, yPos + 1]); }
+                if (state == "Attack" || state=="Move")
+                {// make another list and add those positions to then list then use the attack function to give the damage to the existing locations
+                    hoverEndList.Clear();
+                    int[] pos = GetBoardPositionIndex(bp);
+                    int xPos = pos[0];
+                    int yPos = pos[1];
+                    if (bp.validPosition == true)
+                    {
+                        //TOP ROW
+                        if (xPos - 1 > 0 && yPos - 1 > 0) { hoverEndList.Add(board[xPos - 1, yPos - 1]); }
+                        if (xPos - 1 > 0) { hoverEndList.Add(board[xPos - 1, yPos]); }
+                        if (xPos - 1 > 0 && yPos + 1 < 10) { hoverEndList.Add(board[xPos - 1, yPos + 1]); }
+                        //MIDDLE ROW           
+                        if (xPos > 0 && yPos - 1 > 0) { hoverEndList.Add(board[xPos, yPos - 1]); }
+                        if (xPos > 0) { hoverEndList.Add(board[xPos, yPos]); }
+                        if (xPos > 0 && yPos + 1 < 10) { hoverEndList.Add(board[xPos, yPos + 1]); }
+                        //BOTTOM ROW
+                        if (xPos + 1 > 0 && yPos - 1 > 0) { hoverEndList.Add(board[xPos + 1, yPos - 1]); }
+                        if (xPos + 1 > 0) { hoverEndList.Add(board[xPos + 1, yPos]); }
+                        if (xPos + 1 > 0 && yPos + 1 < 10) { hoverEndList.Add(board[xPos + 1, yPos + 1]); }
+                    }
+                    else
+                    {
+                        return;
+                    }
+                    ShowAttackHover();
                 }
                 else
-                {
-                    return;
+                { 
+                    return; 
                 }
-
-
-                ShowAttackHover();
-            }
+            }      
         }
         void dropDownMenu(PictureBox pic)
         {
@@ -443,14 +480,16 @@ namespace GridGame
                 Rest();
             }
         }
-        new void Move()
+         void Move()
         {
             if (state == "None")
             {
                 Debug.WriteLine("through");
 
+                
                 Character selected = chosen.character;
                 chosen.theBox.ContextMenuStrip.Items.Clear();
+               
 
                 if (selected != null)
                 {
@@ -459,11 +498,19 @@ namespace GridGame
                 }
                 previous = chosen;
                 return;
+                
             }
             if (state == "Move")
             {
                 if (chosen.validPosition)
                 {
+                  int difference= chosen.calculateTheRange(previous,chosen);
+                    Debug.WriteLine("the diff is "+ difference);
+
+                    if (previous.character is  Goblin&& previous.character.specialMoveUsed==true)
+                    {
+                        splashDamageForMove(difference);
+                    }
                     chosen.MoveCharacterToLocation(previous.character);
                     gm.currentPlayer.boardPositions.Add(chosen);
                     gm.currentPlayer.boardPositions.Remove(previous);
@@ -481,7 +528,6 @@ namespace GridGame
                 {
                     state = "Attack";
                     ShowAttackArea(chosen);
-
                 }
                 previous = chosen;
                 return;
@@ -497,7 +543,6 @@ namespace GridGame
                     hpDropping();
                 }
                 chosen = previous;
-
                 MoveComplete();
             }
         }
@@ -546,7 +591,7 @@ namespace GridGame
             if (hasAtLeastSome)
             {
                 gm.Swap();
-            }
+            }   
 
             if (characterDidDoMoveList.Count == characters.Count)
             {
@@ -598,16 +643,7 @@ namespace GridGame
                     damage = attacker.damage - victimer.block;
                 }
                 victimer.health = victimer.health - (int)damage;
-
-                if (victimer.health <= 0)
-                {
-                    chosen.character = null;
-                    characters.Remove(victimer);
-                    gm.notCurrentPlayer.ownedCharacters.Remove(victimer);
-                }
-
             }
-
         }
         void hpDropping(Character attacker, Character victimer)
         {
@@ -621,14 +657,6 @@ namespace GridGame
                     damage = attacker.damage - victimer.block;
                 }
                 victimer.health = victimer.health - (int)damage;
-                /*
-                if (victimer.health <= 0)
-                {
-                    Debug.WriteLine("character removed" + victimer.name);
-                    chosen.character = null;
-                    characters.Remove(victimer);
-                    gm.notCurrentPlayer.ownedCharacters.Remove(victimer);
-                }*/
             }
 
         }
@@ -741,7 +769,7 @@ namespace GridGame
         {
             PictureBox p = sender as PictureBox;
             BoardPosition bp = p.Tag as BoardPosition;
-            if (state == "Attack")
+            if (state == "Attack" || state=="Move")
             {
                 HideAttackHover();
             }
@@ -759,6 +787,8 @@ namespace GridGame
             InfoBox.Items.Add("Did Move? - " + chosen.character.didDoSomething);
             InfoBox.Items.Add(selected.player.name);
             InfoBox.Items.Add(selected);
+            InfoBox.Items.Add("leader?"+selected.isLeader);
+            InfoBox.Items.Add("used special? " + selected.specialMoveUsed);
 
             Update();
         }

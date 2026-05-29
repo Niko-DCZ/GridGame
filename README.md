@@ -39,7 +39,6 @@ After that I will probably implement data saves so that I can continue my game a
 Mainly I want it to change from an offline multi-player to a  online multi-player.
 Making leaders become a signficiant figure to the game,if either of them dies but the defendant still has characters on the board, the attacker wins as it has killed the leader, think of it like chess.
 Modify Kendricks ability so that it can give damage to the adjacent characters of the defendant.
-Hariots ability will take the idea of zaahens ultimate like in League of Legends. - https://youtu.be/S3F9CpeiSNE?t=107 to 1:52. Idea is that you press hariots special ability, then you can travel an increased distance on the board, and once you have moved to that area, you will deal a reduced amount of damage depending on the damage that you deal.
 MLK's ability will make him explode upon death, dealing the damage that he received before he died. 
 Visuals need to be developed to make this game more satisfying but I have focus more on the functionality side.
 
@@ -56,4 +55,6 @@ All logic is handled in C#
 Uses SQL to store data about characters and players (originally it was Classes).
 SQL Database uses a foreign key relationsip to connect characters to players using PlayerID. 
 
+**V1.2**
+Hariot's special ability now has been built. Upon moving her, you will deal damage based on the amount moved. For example, if you have moved 2 tiles from your  current point to the target point, then your damage is / 2  and also you will have to take in mind that there will be a character that has a value for block, so your damage will be taken away from block, then the remainding value for damage will impact the hp.
 

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.Design.Serialization;
 using System.Runtime.CompilerServices;
+using System.Security.AccessControl;
 
 namespace GridGame
 {
@@ -14,9 +15,12 @@ namespace GridGame
         public bool specialMoveUsed = false;
         public Player player;
         public string name;
-       
-        
-        public Character(float h, float d, float tR, int b, Image img, bool m, bool sMU, Player pl,string n)
+        public bool isLeader;
+        public float splashDamage;
+        public int splashRange;
+
+
+        public Character(float h, float d, float tR, int b, Image img, bool m, bool sMU, Player pl,string n,bool iL,float sD, int sR)
         {
             health = h;
             damage = d;
@@ -27,6 +31,9 @@ namespace GridGame
             specialMoveUsed = sMU;
             player = pl;
             name = n;
+            isLeader = iL;
+            splashDamage = sD;
+            splashRange = sR;
 
         }
 
@@ -45,7 +52,7 @@ namespace GridGame
     {
         public float damageIncrease;
        
-        public Ogre(float h, float d, int tR, int b,Image img ,bool m,bool sMU,float dI,Player pl,string n) : base(h, d, tR, b, img,m,sMU,pl,n)
+        public Ogre(float h, float d, float tR, int b, Image img, bool m, bool sMU, Player pl, string n, bool iL, float sD, int sR,float dI) : base(h, d, tR, b, img,m,sMU,pl,n,iL,sD,sR)
         {
             damageIncrease = dI;
         }
@@ -57,12 +64,12 @@ namespace GridGame
                 specialMoveUsed = true;
             }
         }
-    }// dmg increasefloat health = reader.GetFloat(...);
+    }// dmg increase
     
     class Gremlin : Character
     {
         public float healthIncrease;
-        public Gremlin(float h, float d, int tR, int b,Image img, bool m , bool sMU, float hI, Player pl, string n) : base(h, d, tR, b, img, m, sMU, pl,n)
+        public Gremlin(float h, float d, float tR, int b, Image img, bool m, bool sMU, Player pl, string n, bool iL, float sD, int sR, float hI) : base(h, d, tR, b, img, m, sMU, pl, n, iL, sD, sR)
         {
             healthIncrease = hI;
         }
@@ -76,7 +83,7 @@ namespace GridGame
     class Goblin : Character
     {
         public float travelRangeIncrease;
-        public Goblin(float h, float d, float tR, int b,Image img , bool m , bool sMU, float tRI, Player pl, string n) : base(h, d, tR, b, img, m, sMU, pl,n)
+        public Goblin(float h, float d, float tR, int b, Image img, bool m, bool sMU, float tRI, Player pl, string n,bool iL, float sD, int sR) : base(h, d, tR, b, img, m, sMU, pl, n, iL, sD, sR)
         {
             travelRangeIncrease = tRI;
         }
@@ -89,13 +96,11 @@ namespace GridGame
    
     class RangedK_DAWG : Character
     {
-        public float splashDamage;
-        public int splashRange;
+    
         public bool hoverActivated = false;
-        public RangedK_DAWG(float h, float d, int tR, int b, Image img, bool m,bool sMU, float sD, int sR,Player pl, string n) : base(h, d, tR, b, img, m, sMU, pl,n)
+        public RangedK_DAWG(float h, float d, int tR, int b, Image img, bool m,bool sMU, float sD, int sR,Player pl, string n,bool iL) : base(h, d, tR, b, img, m, sMU, pl, n, iL, sD, sR)
         {
-            splashDamage = sD;
-            splashRange = sR;
+           
         }
         public override void ApplySpecialMove()
         {
@@ -144,6 +149,7 @@ namespace GridGame
         {
             return "X:" + x + "," + "Y:" + y;
         }
+        
 
     }
     class BoardPosition
@@ -177,6 +183,31 @@ namespace GridGame
             }
             return false;
         }
+        public int calculateTheRange(BoardPosition prev,BoardPosition after)
+        {
+            Vector2 characterLocBef = prev.location;
+            Vector2 characterLocAft = after.location;
+            int calculatedForX = characterLocAft.x - characterLocBef.x;
+            if(calculatedForX<0)
+            {
+                calculatedForX = calculatedForX - calculatedForX - calculatedForX;
+                // Math.Abs(calculatedForX);
+            }
+            int calculatedForY=characterLocAft.y - characterLocBef.y;
+            if (calculatedForY < 0)
+            {
+                calculatedForY = calculatedForY - calculatedForY - calculatedForY;
+                // Math.Abs(calculatedForY);
+            }
+            int calculatedForBoth = calculatedForX - calculatedForY;
+            if(calculatedForBoth < 0)
+            {
+                calculatedForBoth = calculatedForBoth - calculatedForBoth - calculatedForBoth;
+              //  Math.Abs(calculatedForBoth);
+            }
+            return calculatedForBoth;
+
+        }
         public bool IsInAttackRange(BoardPosition bp)
         {
             Character theCharacter = bp.character;
@@ -202,12 +233,10 @@ namespace GridGame
         }
 
         public void MoveCharacterToLocation(Character toMove)
-        {
-                 
+        {               
                 character = toMove;
                 theBox.Image = toMove.theImage;
-                character.didDoSomething = true;    
-                
+                character.didDoSomething = true;                   
         }
         public void RemoveCharacterFromLocation()
         {
