@@ -41,8 +41,6 @@ Mainly I want it to change from an offline multi-player to a  online multi-playe
 
 Making leaders become a significant figure to the game,if either of them dies but the defendant still has characters on the board, the attacker wins as it has killed the leader, think of it like chess.
 
-Harriot’s future ability is planned to allow extended movement across the board while dealing reduced area damage after moving.”
-
 MLK's ability will make him explode upon death, dealing the damage that he received before he died. 
 
 Visual improvements need to be developed to make this game more satisfying but I have focus more on the functionality side.
