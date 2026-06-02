@@ -1,70 +1,82 @@
 # GridGame
 
-## What is it:
+## What is it?
 
 ### Disclaimer
 
 This project was originally created for my Computer Science NEA coursework. The character theme was based on stakeholder requirements, which focused on people connected to the civil rights movement and individuals who influenced it.
 
-### Up-to-date description
+## Project Description
 
-This is a board game developed in C# Windows Forms. 
-The project currently focuses on functionality with visual improvements planned for the future.
-There are 2 players, that get to decide where to place their characters and their positions.
+GridGame is a board game developed in C# using Windows Forms.
 
-Each character will have a special ability (just not the main characters).
-Each special ability will be unique in what it can do. For example, abilities can modify character parameters or change how certain moves are executed
+The project currently focuses on functionality, with visual improvements planned for the future. The game is designed for two players, who take turns placing characters on the board and deciding how to use them.
 
-There are 6 characters of which 4 of them have a unique ability. 
-* Abraham and Jesse do not have special parameters but the idea for them is to be like a "leader" which will be implemented in the near future.
-* Malcolm's ability enables splash damage for the rest of the game, as long as the position that the cursor is on is within Malcolm's range.
-* Kendrick- increases his damage before attacking.
-* Harriot- This multiplies the range that Harriot can travel and she will give damage based on the distance travelled.(The longer travelled, the less damage she will deal).
-* MLK - HP increase.
+Each character has different statistics, such as health, damage, travel range and block value. Some characters also have special abilities that can modify character parameters or change how certain moves are executed.
 
-There are 3 moves:
+There are currently 6 characters, with 4 of them having unique abilities:
 
-* Move - Moves your character from its current board position to another one that is in range and nobody is on it.
-* Attack - With your character, it will attack the adjacent tile clicked on, with its given parameters.
-* Rest- Uses your move and does nothing.
+- Abraham and Jesse act as leader characters. They do not have special abilities, but they play an important role in the win condition.
+- Malcolm's ability enables splash damage, as long as the selected position is within Malcolm's range.
+- Kendrick's ability increases his damage before attacking.
+- Harriot's ability increases her movement range and allows her to deal damage based on the distance travelled. The further she travels, the less damage she deals.
+- MLK's ability increases his HP.
 
-### All moves consume a move for that round.
+## Moves
 
-## Win condition:
+There are 3 possible moves:
 
-* If all of either player's characters die then the game announces the winner.
-* If a player manages to kill the opponent's leader, they will immediately win the game no matter the HP of the other characters.
+- **Move** - Moves a character from its current board position to another valid position within range, as long as the target position is not occupied.
+- **Attack** - Allows a character to attack an adjacent tile using its current damage and other parameters.
+- **Rest** - Uses the player's move for the round without performing an action.
 
-### Future Plans
+All moves consume the player's move for that round.
 
-* After that I will probably implement data saves so that I can continue my game after I have made a move for example. 
-* Mainly I want it to change from an offline multiplayer to an online multiplayer.
-* MLK's ability will make him explode upon death, dealing the damage that he received before he died. 
-* Visual improvements need to be developed to make this game more satisfying but I have focused more on the functionality side.
+## Win Conditions
 
-### Version history
+A player can win in two ways:
 
-#### V1.0
+- If all of the opponent's characters die, the game announces the remaining player as the winner.
+- If a player kills the opponent's leader, they immediately win the game regardless of the HP of the opponent's other characters.
 
-* C#
-* Uses OOP to store player/character data.
-* Event-driven programming
-* Inheritance for the subclasses.
-* Polymorphism.
-* All logic is handled in C#
-* Turn-based movement
-* Character abilities
-* Combat Logic
-* Win conditions
+## Future Plans
 
-#### V1.1
-* SQL Database integration
-* Uses SQL to store data about characters and players (originally it was Classes).
-* SQL Database uses a foreign key relationship to connect characters to players using PlayerID. 
+- Implement a save system so players can continue a game after making progress.
+- Develop the game from offline multiplayer into online multiplayer.
+- Add MLK's planned ability, where he explodes upon death and deals damage based on the damage he received before dying.
+- Improve the visual design to make the game more satisfying to play.
+- Continue improving functionality, structure and maintainability.
 
-#### V1.2
-* Harriot's special ability now has been built. Upon moving her, you will deal damage based on the amount moved, the further you move her,the less you will deal.
+## Version History
 
-#### V1.3
-* Leaders have become a significant figure in the game, as they can now be used to win the game. If a player manages to kill the opponent's leader, they will immediately win the game, regardless of the status of the other characters. This adds a new layer of strategy to the game, as players must now consider not only their own characters but also the safety of their leader while trying to eliminate their opponent's leader.
-* There can only be 1 leader per player, and they are Abraham and Jesse. They do not have special abilities but they are the key to winning the game.
+### V1.0 - Core Gameplay
+
+- Built using C# and Windows Forms.
+- Used object-oriented programming to store player and character data.
+- Implemented event-driven programming.
+- Used inheritance for character subclasses.
+- Used polymorphism for character behaviour.
+- Handled all game logic in C#.
+- Added turn-based movement.
+- Added character abilities.
+- Added combat logic.
+- Added basic win conditions.
+
+### V1.1 - SQL Database Integration
+
+- Integrated a SQL database into the project.
+- Used SQL to store data about characters and players.
+- Added a foreign key relationship to connect characters to players using `PlayerID`.
+
+### V1.2 - Harriot's Special Ability
+
+- Implemented Harriot's special ability.
+- When Harriot moves, she deals damage based on the distance travelled.
+- The further she moves, the less damage she deals.
+
+### V1.3 - Leader Win Condition
+
+- Added leaders as an important part of the win condition.
+- If a player kills the opponent's leader, they immediately win the game regardless of the status of the opponent's other characters.
+- Limited each player to one leader.
+- Abraham and Jesse are currently the leader characters. They do not have special abilities, but they are key to winning the game.
