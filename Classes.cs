@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.Design.Serialization;
 using System.Runtime.CompilerServices;
 using System.Security.AccessControl;
+using System.Text;
+using System.Windows.Forms.VisualStyles;
 
 namespace GridGame
 {
@@ -18,8 +20,6 @@ namespace GridGame
         public bool isLeader;
         public float splashDamage;
         public int splashRange;
-
-
         public Character(float h, float d, float tR, int b, Image img, bool m, bool sMU, Player pl,string n,bool iL,float sD, int sR)
         {
             health = h;
@@ -152,6 +152,7 @@ namespace GridGame
         
 
     }
+
     class BoardPosition
     {
         public PictureBox theBox;
@@ -183,6 +184,7 @@ namespace GridGame
             }
             return false;
         }
+
         public int calculateTheRange(BoardPosition prev,BoardPosition after)
         {
             Vector2 characterLocBef = prev.location;
@@ -206,8 +208,8 @@ namespace GridGame
               //  Math.Abs(calculatedForBoth);
             }
             return calculatedForBoth;
-
         }
+
         public bool IsInAttackRange(BoardPosition bp)
         {
             Character theCharacter = bp.character;
@@ -257,7 +259,7 @@ namespace GridGame
             player1 = new Player(name1);
             player2 = new Player(name2);
             currentPlayer = player1;
-            notCurrentPlayer = player2;
+            notCurrentPlayer = player2;       
         }
         public void Swap()
         {
@@ -278,23 +280,26 @@ namespace GridGame
             {
                 player1.ownedCharacters = characters;
                 player1.boardPositions = boardPositions;
+                
                 foreach(Character c in characters)
                 {
+                 
                     c.player = player1;
                 }
             }
             else
             {
-
                 player2.ownedCharacters = characters;
                 player2.boardPositions = boardPositions;
                 foreach (Character c in characters)
-                {
+                {               
                     c.player = player2;
                 }
             }
         }
+     
     }
+
     class Player
     {
         public string name;
