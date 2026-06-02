@@ -66,9 +66,8 @@ namespace GridGame
             DebugBox.Items.Add(gm.player2.boardPositions.Count + " playerCountFor2");
             DebugBox.Items.Add(gm.currentPlayer.boardPositions.Count + " playerCountForCurrent");
             DebugBox.Items.Add(gm.notCurrentPlayer.boardPositions.Count + " playerCountForNotCurrent");
-
-
         }
+
         int[] GetBoardPositionIndex(BoardPosition bp)
         {
             for (int i = 0; i < board.GetLength(0); i++)
@@ -83,6 +82,7 @@ namespace GridGame
             }
             return new int[] { -1, -1 };
         }
+
         void GenerateMap()
         {
             int boxSize = mapPanel.Width / 10;
@@ -126,6 +126,7 @@ namespace GridGame
             }
             //spawnCharacters();
         }
+
         void SetCharactersIntoList()
         {
             characters.Clear();
@@ -191,6 +192,7 @@ namespace GridGame
             reader.Close();
             con.Close();
         }
+
         void SetupCharacters()
         {
             gm.SetupPlayer(player1Characters, bpForP1, 1);
@@ -238,6 +240,7 @@ namespace GridGame
 
         }
         */
+
         void Player_Click(object sender, MouseEventArgs e)
         {
             chosen = (sender as PictureBox).Tag as BoardPosition;
@@ -279,6 +282,7 @@ namespace GridGame
             dropDownMenu(sender as PictureBox);//right click         
 
         }
+
         void splashDamage()
         {
             Debug.WriteLine("Number of valid spaces = " + hoverListForSplash.Count);
@@ -311,6 +315,7 @@ namespace GridGame
 
             }
         }
+
         void splashDamageForMove(int difference)
         {
             Debug.WriteLine("Number of valid spaces = " + hoverListForSplash.Count);
@@ -358,7 +363,8 @@ namespace GridGame
             {
                 return;
             }
-            if (chosen.character.specialMoveUsed != true) {
+            if (chosen.character.specialMoveUsed != true) 
+            {
                 return; 
             }
             if (chosen.character  is  RangedK_DAWG || chosen.character is Goblin)
@@ -396,6 +402,7 @@ namespace GridGame
                 }
             }      
         }
+
         void dropDownMenu(PictureBox pic)
         {
             Debug.WriteLine(gm.currentPlayer.name);
@@ -457,6 +464,7 @@ namespace GridGame
                 SM.Click += whatItem_Click;
             }
         }
+
         void whatItem_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem item = sender as ToolStripMenuItem;
@@ -480,7 +488,8 @@ namespace GridGame
                 Rest();
             }
         }
-         void Move()
+
+        void Move()
         {
             if (state == "None")
             {
@@ -519,6 +528,7 @@ namespace GridGame
                 }
             }
         }
+
         void Attack()
         {
             if (state == "None")
@@ -542,10 +552,12 @@ namespace GridGame
                 {
                     hpDropping();
                 }
+                
                 chosen = previous;
                 MoveComplete();
             }
         }
+       
         /*
         void isCommanderDead(Character chosen)
         {
@@ -565,11 +577,13 @@ namespace GridGame
             chosen.character.ApplySpecialMove();
             MoveComplete();
         }
+
         void Rest()
         {
             chosen.theBox.ContextMenuStrip.Items.Clear();
             MoveComplete();
         }
+
         void MoveComplete()  // readjust this function so that i can do this program with no issues
         {
             chosen.theBox.ContextMenuStrip.Items.Clear();
@@ -606,6 +620,7 @@ namespace GridGame
                 ResetDropDown();
             }
         }
+
         void ShowMovableArea(BoardPosition bp)
         {
             for (int i = 0; i < 9; i++)
@@ -631,6 +646,7 @@ namespace GridGame
                 }
             }
         }
+
         void hpDropping()
         {
             Character attacker = previous.character;
@@ -643,8 +659,10 @@ namespace GridGame
                     damage = attacker.damage - victimer.block;
                 }
                 victimer.health = victimer.health - (int)damage;
+                
             }
         }
+
         void hpDropping(Character attacker, Character victimer)
         {
 
@@ -657,9 +675,10 @@ namespace GridGame
                     damage = attacker.damage - victimer.block;
                 }
                 victimer.health = victimer.health - (int)damage;
+                   
             }
-
         }
+     
 
         void ResetDropDown()
         {
@@ -672,8 +691,10 @@ namespace GridGame
                 }
             }
         }
+
         //health 2// damage 5// travelrange 3 //block 1
         //health 20// damage 4// travel range 2/block 5
+
         void RedrawMap()
         {
             int characterCount = 0;
@@ -700,18 +721,40 @@ namespace GridGame
                         characterCount++;
                         current.theBox.Image = current.character.theImage;
                         Debug.WriteLine(current.character.name + " has " + current.character.health);
+                        
                         if (current.character.health <= 0)
                         {
+                            if (current.character.isLeader)
+                            {
+                                if (gm.player1.ownedCharacters.Contains(current.character))
+                                {
+                                    for(int z = 0; z < gm.player1.ownedCharacters.Count; z++)
+                                    {
+                                        gm.player1.ownedCharacters[z].health = 0;
+                                    }
+                                        gm.player1.ownedCharacters.Clear();
+                                }
+                                else if (gm.player2.ownedCharacters.Contains(current.character))
+                                {
+                                    for (int b = 0; b < gm.player1.ownedCharacters.Count;b++)
+                                    {
+                                        gm.player1.ownedCharacters[b].health = 0;
+                                    }
+                                    gm.player2.ownedCharacters.Clear();
+                                }
+                            }
                             gm.player1.ownedCharacters.Remove(current.character);
                             gm.player2.ownedCharacters.Remove(current.character);
                             current.character = null;
                             current.theBox.Image = Image.FromFile("GrassTexture.png");
                         }
+                        
                     }
                 }
             }
             Debug.WriteLine("The character count is " + characterCount);
         }
+      
         void ShowAttackArea(BoardPosition bp)
         {
             Character theCharacter = chosen.character;
@@ -731,13 +774,14 @@ namespace GridGame
                         {
                             current.theBox.ContextMenuStrip.Items.Clear();
                             current.theBox.Image = Image.FromFile("GrassTextureYella.png");
-                            //   current.theBox.Image.Tag = "Yella";                    
+                          
                         }
                         current.validPosition = true;
                     }
                 }
             }
         }
+
         void ShowAttackHover()
         {
             foreach (BoardPosition bp in hoverEndList)
@@ -765,6 +809,7 @@ namespace GridGame
                 hoverListForSplash.Remove(bp);
             }
         }
+
         void HoverEnd(object sender, EventArgs e)
         {
             PictureBox p = sender as PictureBox;
@@ -775,6 +820,7 @@ namespace GridGame
             }
 
         }
+
         void ShowCharacterStats(Character selected)
         {
             InfoBox.Items.Clear();
@@ -792,9 +838,47 @@ namespace GridGame
 
             Update();
         }
+        bool checkForLeader(List<Character> characters)
+        {
+            bool hasLeader = false;
+            Debug.WriteLine(characters.Count);
+            foreach (Character character in characters)
+            {
+                if (character.isLeader)
+                {
+                    hasLeader = true;
+                }
+            }
+            if(hasLeader)
+            {
+               
+            Debug.WriteLine(hasLeader);
+                return true;
+            }
+            else
+            {
+                Debug.WriteLine(hasLeader);
+                return false;
+            }
+        }
 
         private void ConfirmSelection(object sender, EventArgs e)
         {
+            Character selected = lstCharacters.SelectedItem as Character;
+            if(gm.currentPlayer== gm.player1)
+            {
+                if (selected.isLeader && checkForLeader(player1Characters))
+                {
+                    return;
+                }
+            }
+            else if(gm.currentPlayer == gm.player2)
+            {
+                 if (selected.isLeader && checkForLeader(player2Characters))
+                 {
+                     return;
+                 }
+            }
             if (txtCoord.Text == "")
             {
                 return;
@@ -802,12 +886,10 @@ namespace GridGame
             else
             {
                 Vector2 coord = Vector2.FromString(txtCoord.Text);
-                Character selected = lstCharacters.SelectedItem as Character;
                 if (selected == null)
                 {
                     return;
                 }
-
                 else
                 {
                     if (coord.x > 0 && coord.y > 0 && coord.x < board.Length && coord.y < board.Length && !PositionUsed(coord))
@@ -844,6 +926,7 @@ namespace GridGame
                 }
             }
         }
+
         bool PositionUsed(Vector2 coord)
         {
             foreach (Vector2 current in inUse)
@@ -855,6 +938,7 @@ namespace GridGame
             }
             return false;
         }
+
         private void setupGameButton_Click(object sender, EventArgs e)
         {
             if (lstCharacters.Items.Count > 0)
@@ -864,6 +948,7 @@ namespace GridGame
             SetupCharacters();
             state = "None";
         }
+
         void endGame()
         {
             Debug.WriteLine("End Game Running");
